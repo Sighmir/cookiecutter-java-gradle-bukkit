@@ -1,0 +1,91 @@
+plugins {
+    // Apply the java plugin to add support for Java
+    id 'java'
+
+    // Apply SonarQube plugin to add code quality analisys
+    id "org.sonarqube" version "2.8"
+
+    // Apply JaCoCo to add test coverage analisys
+    id 'jacoco'
+
+    // Apply Spigradle to add Spigot compatibility
+    id 'kr.entree.spigradle' version '1.2.4'
+}
+
+spigot {
+    name = "{{ cookiecutter.repo_name }}"
+    description = "{{ cookiecutter.repo_description }}"
+    authors = ['{{ cookiecutter.repo_author }}']
+    version = "0.0.1"
+    apiVersion = '{{ cookiecutter.api_version }}'
+    load = STARTUP
+    commands {
+        test {
+            aliases = ['t']
+            description = 'Test command.'
+            permission = 'test.test'
+            permissionMessage = 'You do not have permission!'
+            usage = '/<command>'
+        }
+    }
+    permissions {
+        'test.test' {
+            description = 'Allows test command'
+            defaults = 'false'
+        }
+        'test.*' {
+            description = 'Wildcard permission'
+            defaults = 'op'
+            children = ['test.test': true]
+        }
+    }
+}
+
+repositories {
+    // Use jcenter for resolving dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+    jitpack()
+}
+
+dependencies {
+    // Use Spigot for plugin implementation
+    implementation spigot('{{ cookiecutter.api_version }}')
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+
+    // Use Mockito and PowerMock for test mocking
+    testImplementation 'org.mockito:mockito-core:2.22.0'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
+    testImplementation 'org.powermock:powermock-module-junit4-rule:2.0.2'
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
+
+    // Use Objenesis to instantiate plugin when testing
+    testImplementation 'org.objenesis:objenesis:2.6'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': '{{ cookiecutter.repo_name }}.App'
+    }
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "{{ cookiecutter.repo_name }}"
+        property "sonar.organization", "{{ cookiecutter.repo_author }}"
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
