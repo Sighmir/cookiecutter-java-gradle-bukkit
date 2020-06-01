@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Plugin extends JavaPlugin {
     public Logger getCustomLogger() {
         if (Bukkit.getServer() != null) {
-            return Bukkit.getLogger();
+            return getLogger();
         } else {
             return Logger.getGlobal();
         }
